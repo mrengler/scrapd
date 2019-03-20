@@ -46,6 +46,7 @@ def clean_date_string(date, is_dob=False):
         dt = check_dob(dt)
     return datetime.datetime.strftime(dt, "%m/%d/%Y")
 
+
 def parse_case(case):
     """
     Parse the case from a human readable input, with option to specify year.
@@ -60,8 +61,9 @@ def parse_case(case):
         year = int(case[:case.index(':')])
     else:
         year = datetime.datetime.now().year
-    case_num = int(case[case.index('#')+1:])
+    case_num = int(case[case.index('#') + 1:])
     return (case_num, year)
+
 
 def from_date(date):
     """
@@ -118,6 +120,7 @@ def parse_date(date, default=None, settings=None):
             return default
         raise Exception
 
+
 def is_in_case_range(case, from_=None, to=None):
     """
     Check whether a case number is between 2 others.
@@ -128,25 +131,26 @@ def is_in_case_range(case, from_=None, to=None):
     :return: `True` if the case is between `from_` and `to`
     :rtype: bool
     """
-    if '#' not in from_:
+    if from_ is None or '#' not in from_:
         return True
-    
+
     from_case_ = parse_case(from_)[0]
     to_case_ = parse_case(to)[0]
 
     return from_case_ <= case <= to_case_
 
+
 def is_in_range(date, from_=None, to=None):
     """
     Check whether a date is comprised between 2 others.
 
-    :param str date: date to vheck
+    :param str date: date to check
     :param str from_: start date, defaults to None
     :param str to: end date, defaults to None
     :return: `True` if the date is between `from_` and `to`
     :rtype: bool
     """
-    if '#' in from_:
+    if from_ is not None and '#' in from_:
         return parse_case(from_)[1] == parse_date(date).year
 
     current_date = parse_date(date)

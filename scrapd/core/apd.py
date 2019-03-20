@@ -430,10 +430,14 @@ async def async_retrieve(pages=-1, from_=None, to=None):
     has_entries = False
     no_date_within_range_count = 0
 
-    if '#' in from_:
-        logger.debug(f'Retrieving fatalities from {date_utils.parse_case(from_)[1]} to {date_utils.parse_case(to)[1]} of {date_utils.parse_case(from_)[0]}.')
-    else:
-        logger.debug(f'Retrieving fatalities from {date_utils.from_date(from_)} to {date_utils.to_date(to)}.')
+    # if '#' in from_:
+    #     logger.debug(
+    #         f'Retrieving fatalities from {date_utils.parse_case(from_)[1]} to {date_utils.parse_case(to)[1]} of'
+    #         f' {date_utils.parse_case(from_)[0]}.'
+    #     )
+    # else:
+    #     logger.debug(f'Retrieving fatalities from {date_utils.from_date(from_)} to {date_utils.to_date(to)}.')
+    logger.debug(f'Retrieving fatalities from {date_utils.from_date(from_)} to {date_utils.to_date(to)}.')
 
     async with aiohttp.ClientSession() as session:
         while True:
@@ -455,7 +459,8 @@ async def async_retrieve(pages=-1, from_=None, to=None):
             # If the page contains fatalities, ensure all of them happened within the specified time range.
             if page_res:
                 entries_in_time_range = [
-                    entry for entry in page_res if date_utils.is_in_range(entry[Fields.DATE], from_, to) and date_utils.is_in_case_range(entry[Fields.CASE], from_, to)
+                    entry for entry in page_res if date_utils.is_in_range(entry[Fields.DATE], from_, to)
+                    and date_utils.is_in_case_range(entry[Fields.CASE], from_, to)
                 ]
 
                 # If 2 pages in a row:
