@@ -21,7 +21,7 @@ async def fetch_text(session, url, params=None):
 
     :param aiohttp.ClientSession session: aiohttp session
     :param str url: request URL
-    :param dict params: request paramemters, defaults to None
+    :param dict params: request parameters, defaults to None
     :return: the data from a URL as text.
     :rtype: str
     """
@@ -430,7 +430,10 @@ async def async_retrieve(pages=-1, from_=None, to=None):
     has_entries = False
     no_date_within_range_count = 0
 
-    logger.debug(f'Retrieving fatalities from {date_utils.from_date(from_)} to {date_utils.to_date(to)}.')
+    if '#' in from_:
+        logger.debug(f'Retrieving fatalities from {date_utils.parse_case(from_)[1]} to {date_utils.parse_case(to)[1]} of {date_utils.parse_case(from_)[0]}.')
+    else:
+        logger.debug(f'Retrieving fatalities from {date_utils.from_date(from_)} to {date_utils.to_date(to)}.')
 
     async with aiohttp.ClientSession() as session:
         while True:
@@ -452,7 +455,7 @@ async def async_retrieve(pages=-1, from_=None, to=None):
             # If the page contains fatalities, ensure all of them happened within the specified time range.
             if page_res:
                 entries_in_time_range = [
-                    entry for entry in page_res if date_utils.is_in_range(entry[Fields.DATE], from_, to)
+                    entry for entry in page_res if date_utils.is_in_range(entry[Fields.DATE], from_, to) and date_utils.is_in_case_range(entry[Fields.CASE], from_, to)
                 ]
 
                 # If 2 pages in a row:
