@@ -307,6 +307,32 @@ def dob_search(split_deceased_field):
     return dob_index
 
 
+def get_best_delimiter(deceased_field):
+    """
+    Among parsing options for deceased field, select the most likely.
+
+    At this point the deceased field, if it exists, is garbage as it contains First Name, Last Name, Ethnicity,
+    Gender, D.O.B. and Notes. We need to explode this data into the appropriate fields.
+
+    :param str deceased: the deceased fields from the fatality report parsed with possible delimiters
+    :return: a str representing the most likely delimiter
+    :rtype: str
+    """
+    delimiter = ""
+    if '|' in deceased_field:
+        return '|'
+    if ',' not in deceased_field:
+        return ' '
+    len_comma = len(deceased_field.split(','))
+    len_space = len(deceased_field.split(' '))
+    if len_comma == len_space:
+        return ','
+    elif len_space > len_comma:
+        return ' '
+    else:
+        return ','
+
+
 def parse_deceased_field(deceased_field):
     """
     Parse the deceased field.
@@ -318,25 +344,14 @@ def parse_deceased_field(deceased_field):
     :return: a dictionary representing a deceased field.
     :rtype: dict
     """
-    # Try to parse the deceased fields when the fields are comma separated.
-    try:
+    # Parse fields with possible delimiters.
+    delimiter = get_best_delimiter(deceased_field)
+    if delimiter == ',':
         return parse_comma_delimited_deceased_field(deceased_field)
-    except Exception:
-        pass
-
-    # Try to parse the deceased fields when the fields are pipe separated.
-    try:
+    if delimiter == '|':
         return parse_pipe_delimited_deceased_field(deceased_field)
-    except Exception:
-        pass
-
-    # Try to parse the deceased fields when the fields are space separated.
-    try:
+    if delimiter == ' ':
         return parse_space_delimited_deceased_field(deceased_field)
-    except Exception:
-        pass
-
-    raise ValueError(f'Cannot parse {Fields.DECEASED}: {deceased_field}')
 
 
 def parse_comma_delimited_deceased_field(deceased_field):
